@@ -1,0 +1,16 @@
+# ignore semua
+*
+
+# kecuali folder presentasi
+!/onepiece-hero-journey-slides/
+!/onepiece-hero-journey-slides/**
+
+# kecuali .gitignore sendiri
+!/.gitignore
+
+# tapi tetep ignore ini di dalam folder presentasi
+/onepiece-hero-journey-slides/node_modules/
+/onepiece-hero-journey-slides/.env
+/onepiece-hero-journey-slides/.env.*
+/onepiece-hero-journey-slides/.vercel/
+/onepiece-hero-journey-slides/**/.DS_Store

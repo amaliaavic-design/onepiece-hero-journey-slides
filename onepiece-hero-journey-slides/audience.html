@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Q&amp;A — Hero's Journey One Piece</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: #0f0f1a; color: #f2f2f2;
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 48px;
+  }
+  h1 { font-size: 1.3rem; margin: 8px 0 4px; text-align: center; }
+  p.sub { color: #aaa; margin: 0 0 20px; text-align: center; font-size: .9rem; }
+  .card { width: 100%; max-width: 420px; background: #1b1b2e; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .qbtns { display: flex; gap: 8px; width: 100%; max-width: 420px; margin-bottom: 16px; }
+  .qbtns button {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #3a3a5c;
+    background: #23233d; color: #f2f2f2; font-size: .85rem; cursor: pointer;
+  }
+  .qbtns button.active { background: #ff5b5b; border-color: #ff5b5b; color: #1b1b2e; font-weight: 600; }
+  label { display: block; font-size: .8rem; color: #bbb; margin: 12px 0 4px; }
+  input, textarea {
+    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #3a3a5c;
+    background: #12121f; color: #f2f2f2; font-size: 1rem; font-family: inherit;
+  }
+  textarea { min-height: 100px; resize: vertical; }
+  .qtext { font-size: 1rem; font-weight: 600; margin: 0; }
+  button.submit {
+    margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: #ff5b5b; color: #1b1b2e; font-weight: 700; font-size: 1rem; cursor: pointer;
+  }
+  button.submit:disabled { opacity: .5; }
+  .status { text-align: center; font-size: .85rem; margin-top: 10px; min-height: 1.2em; }
+  .status.ok { color: #7ee787; }
+  .status.err { color: #ff8080; }
+</style>
+</head>
+<body>
+  <h1>Hero's Journey dalam One Piece</h1>
+  <p class="sub">Jawab pertanyaan diskusi — jawabanmu langsung tampil di layar presentasi.</p>
+
+  <div class="qbtns">
+    <button type="button" data-q="q1" class="active">Pertanyaan 1</button>
+    <button type="button" data-q="q2">Pertanyaan 2</button>
+  </div>
+
+  <div class="card">
+    <p class="qtext" id="qtext"></p>
+
+    <label for="name">Nama (opsional)</label>
+    <input id="name" maxlength="60" placeholder="Anonim">
+
+    <label for="answer">Jawabanmu</label>
+    <textarea id="answer" maxlength="500" placeholder="Tulis jawabanmu di sini..."></textarea>
+
+    <button class="submit" id="submitBtn">Kirim Jawaban</button>
+    <div class="status" id="status"></div>
+  </div>
+
+<script>
+  const QUESTIONS = {
+    q1: "Sifat apa dari Luffy yang paling menunjukkan dia pahlawan, walau dia bajak laut?",
+    q2: "Archetype mana (herald, guardian, ally, atau shadow) yang menurutmu paling penting dalam perjalanan Luffy, dan kenapa?"
+  };
+
+  let currentQ = 'q1';
+  const qtext = document.getElementById('qtext');
+  const buttons = document.querySelectorAll('.qbtns button');
+  const answerEl = document.getElementById('answer');
+  const nameEl = document.getElementById('name');
+  const statusEl = document.getElementById('status');
+  const submitBtn = document.getElementById('submitBtn');
+
+  qtext.textContent = QUESTIONS[currentQ];
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentQ = btn.dataset.q;
+      buttons.forEach(b => b.classList.toggle('active', b === btn));
+      qtext.textContent = QUESTIONS[currentQ];
+      statusEl.textContent = '';
+    });
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    const answer = answerEl.value.trim();
+    if (!answer) {
+      statusEl.textContent = 'Isi jawaban dulu.';
+      statusEl.className = 'status err';
+      return;
+    }
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Mengirim...';
+    statusEl.className = 'status';
+    try {
+      const res = await fetch('/api/answers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: currentQ, name: nameEl.value.trim(), answer })
+      });
+      if (!res.ok) throw new Error('gagal kirim');
+      statusEl.textContent = 'Terkirim! Cek layar presentasi.';
+      statusEl.className = 'status ok';
+      answerEl.value = '';
+    } catch (e) {
+      statusEl.textContent = 'Gagal mengirim, coba lagi.';
+      statusEl.className = 'status err';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
