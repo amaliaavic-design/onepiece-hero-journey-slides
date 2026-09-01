@@ -68,7 +68,8 @@
     q2: "Archetype mana (herald, guardian, ally, atau shadow) yang menurutmu paling penting dalam perjalanan Luffy, dan kenapa?"
   };
 
-  let currentQ = 'q1';
+  const qFromUrl = new URLSearchParams(location.search).get('q');
+  let currentQ = QUESTIONS[qFromUrl] ? qFromUrl : 'q1';
   const qtext = document.getElementById('qtext');
   const buttons = document.querySelectorAll('.qbtns button');
   const answerEl = document.getElementById('answer');
@@ -77,6 +78,7 @@
   const submitBtn = document.getElementById('submitBtn');
 
   qtext.textContent = QUESTIONS[currentQ];
+  buttons.forEach(b => b.classList.toggle('active', b.dataset.q === currentQ));
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
